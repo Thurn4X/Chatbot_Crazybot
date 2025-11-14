@@ -1,2 +1,5 @@
 cornell movie-dialogs corpus/
 /venv/
+BERT_seqtoseq/
+bert-gpt2-finetuned/
+bert-gpt2-finetuned-v2/
