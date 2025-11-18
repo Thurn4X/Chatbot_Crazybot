@@ -10,7 +10,8 @@ Pour le Bot Rag:
 - discuter
 
 Pour le bot BERT-GPT:
-- le dossier du modèle est disponible dans les releases en tant que pre release
+- le dossier du modèle est disponible dans les releases en tant que pre release: Modèle BERT-GPT2 finetuné v2
+- télécharger le dossier
 - python chat_bert_gpt_2.py
 - discuter
   
