@@ -1,15 +1,25 @@
-étapes:
-- créer un venv
+Projet de chatbot 
+
+La version finale du chatbot de ce projet est le Chatbot RAG. Il est conseillé de run ce dernier, mais deux autres chatbots expérimentaux sont disponibles: BERT-GPT2 et GRU-GRU+AttentionLuong ()
+
+Pour le Bot Rag:
+- cd RAG_chatbot
+- pip install sentence-transformers faiss-cpu numpy
+- python build_database.py (Attention cette etape peut prendre quelques minutes)
+- python chat_rag_pytorch.py
+- discuter
+
+Pour le bot BERT-GPT:
+- le dossier du modèle est disponible dans les releases en tant que pre release
+- python chat_bert_gpt_2.py
+- discuter
+  
+
+Pour Le bot GRU/GRU+ attention
 - pip install numpy, tensorflow
--lancer chat_cornell.py
--discuter
-
-![alt text](image.png)
-
-For the pytorch bot, i provided the model already trained, that shows the limits of the current architecture and dataset.
-You just have to run cornell_chat.py and it should work.
-Otherwise you can access the kaggle notebook i used to train it: https://www.kaggle.com/code/thurn4x/crazybot-cornell
-
+- lancer chat_cornell.py
+- discuter
+- optionnel: regarder le notebook utilisé pour l'entrainer: https://www.kaggle.com/code/thurn4x/crazybot-cornell
 
 ![alt text](image-1.png)
-Next steps are to use a model like gpt or bert and try to train it !
+
