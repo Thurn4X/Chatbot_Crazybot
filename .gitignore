@@ -3,3 +3,8 @@ cornell movie-dialogs corpus/
 BERT_seqtoseq/
 bert-gpt2-finetuned/
 bert-gpt2-finetuned-v2/
+
+# RAG database files (too large for GitHub, can be regenerated)
+RAG_chatbot/dailydialog.index
+RAG_chatbot/train/
+RAG_chatbot/*.index

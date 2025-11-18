@@ -59,44 +59,42 @@ def find_context(user_query, k=3):
     
     return context_str.strip()
 
-def generate_response(user_query, context):
+def generate_response(user_query, context, conversation_history=""):
     """
     1. Construit le "prompt" (instruction) pour le générateur Flan-T5.
-    2. Génère une réponse basée sur ce prompt.
+    2. Génère une réponse basée sur ce prompt et l'historique de conversation.
     """
-    # Flan-T5 est très bon pour suivre ce genre d'instructions
-    prompt = f"""
-Based on the following CONTEXT, answer the QUESTION.
-Be conversational and use the style of the context.
-Only output the answer, not the explanation.
+    # Prompt unifié et clair pour Flan-T5
+    if conversation_history.strip():
+        prompt = f"""Answer the following question based on the conversation so far. Be natural and friendly.
 
-CONTEXT:
-{context}
+Conversation:
+{conversation_history}
+User: {user_query}
+Bot:"""
+    else:
+        prompt = f"""Answer this question in a friendly way:
 
-QUESTION:
 {user_query}
 
-ANSWER:
-"""
+Answer:"""
     
     # 1. Tokenize le prompt pour T5
     inputs = tokenizer(
         prompt, 
-        return_tensors="pt", # "pt" pour PyTorch
+        return_tensors="pt",
         max_length=512, 
         truncation=True
     ).to(device)
     
-    # 2. Générer la réponse
+    # 2. Générer la réponse avec paramètres optimisés
     outputs = generator.generate(
         **inputs,
-        max_length=50,
-        num_beams=5,
+        max_new_tokens=30,        # Limite la longueur de la réponse générée
+        num_beams=4,
         early_stopping=True,
         no_repeat_ngram_size=2,
-        temperature=0.7,
-        top_k=50,
-        top_p=0.95
+        repetition_penalty=1.2
     )
     
     # 3. Décoder la réponse
@@ -108,19 +106,42 @@ def chat():
     print("="*50)
     print("Chatbot (RAG avec Flan-T5 + PyTorch) prêt !")
     print("Tapez 'q' ou 'quit' pour arrêter.")
+    print("Tapez 'clear' pour effacer l'historique de conversation.")
     print("="*50)
+    
+    # Liste pour stocker l'historique de la conversation
+    conversation_history = []
+    max_history_length = 8  # Garder les 8 derniers échanges
     
     while True:
         try:
             user_input = input("> ")
             if user_input.lower() in ['q', 'quit']:
                 break
-
-            # 1. Trouver le contexte pertinent (Retriever)
-            context = find_context(user_input, k=3)
             
-            # 2. Générer la réponse basée sur le contexte (Generator)
-            response = generate_response(user_input, context)
+            # Commande pour effacer l'historique
+            if user_input.lower() == 'clear':
+                conversation_history = []
+                print("Bot: Historique de conversation effacé.")
+                continue
+
+            # 1. Formater l'historique de conversation
+            history_str = ""
+            for user_msg, bot_msg in conversation_history[-max_history_length:]:
+                history_str += f"User: {user_msg}\nBot: {bot_msg}\n"
+            
+            # 2. Ne plus utiliser le contexte FAISS (cause de confusion)
+            # Le modèle se base uniquement sur l'historique
+            context = ""
+            
+            # 3. Générer la réponse
+            response = generate_response(user_input, context, history_str)
+            
+            # 4. Nettoyer la réponse (enlever les préfixes indésirables)
+            response = response.replace("Bot:", "").replace("User:", "").strip()
+            
+            # 5. Ajouter cet échange à l'historique
+            conversation_history.append((user_input, response))
             
             print("Bot:", response)
             # print(f"  (Contexte utilisé: {context[:100]}...)\n") # Décommentez pour déboguer
